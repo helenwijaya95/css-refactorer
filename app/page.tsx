@@ -7,14 +7,23 @@ export const preferredRegion = 'sin1'; // Forces the server to run in Singapore
 import { RefactorResult } from "@/src/types"; 
 
 export default function RefactorPage() {
-  const [input, setInput] = useState('');
+  const [inputCss, setInputCss] = useState("");
   const [output, setOutput] = useState<RefactorResult | null>(null);
   const [loading, setLoading] = useState(false)
   const [isCooldown, setIsCooldown] = useState(false)
+  const [error, setError] = useState<string | null>(null);
+
   const handleRefactor = async () => {
+    if(!inputCss.trim()){
+      setError("Please enter some CSS first!");
+      return;
+    }
+    
     if(isCooldown) return;
+
     setLoading(true)
-    const result = await refactorCSS(input)
+    setError(null);
+    const result = await refactorCSS(inputCss)
     if(result.success) setOutput(result.data || null)
       setLoading(false)
     setIsCooldown(true);
@@ -54,50 +63,66 @@ export default function RefactorPage() {
         <span className="text-slate-200 font-semibold"> Tailwind v4</span> utility classes in seconds.
       </p>
     </div>
-      
-      <div className="grid grid-cols-2 gap-6 h-[500px]">
-        <textarea 
-        className="p-4 border rounded-lg bg-gray-50 font-mono text-sm text-black"
-        placeholder="Paste messy CSS here..."
-        value={input}
-        onChange={(e) => setInput(e.target.value)}
-        />
 
-        <div className="p-4 bg-slate-900 rounded-md min-h-[100px]">
-  
-          {loading ? (
-            <span className="text-gray-500 animate-pulse">AI is refactoring...</span>
-          ) : output ? (
-            <div className="relative p-4 bg-slate-900 rounded-lg border border-slate-700 group">
-              <h3 className="text-xs uppercase text-slate-500 font-bold mb-2">Tailwind Classes</h3>
-              <div>
-                <code className="text-emerald-400 break-all block">
-                    {/* Instead of {output}, use the specific key: */}
-                  {output?.tailwindClasses}
-                </code>
+    {/* 4. The Textbox */}
+    <div className="grid grid-cols-2 gap-6 h-[500px]">
+      <textarea 
+      className="p-4 border rounded-lg bg-gray-50 font-mono text-sm text-black"
+      placeholder="Paste messy CSS here..."
+      value={inputCss}
+      onChange={(e) => setInputCss(e.target.value)}
+      />
 
-                <button onClick={copyToClipboard} className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] px-2 py-1 rounded border border-slate-600 uppercase font-bold">Copy Classes</button>
-              </div>
-            
- 
-              
-              {output.explanation && (
-                <div className="mt-4 pt-4 border-t border-slate-800">
-                  <h3 className="text-xs uppercase text-gray-500 font-bold mb-2">Explanation</h3>
-                  <p className="text-gray-300 text-sm">{output.explanation}</p>
-                </div>
-              )}
+      <div className="p-4 bg-slate-900 rounded-md min-h-[100px]">
+
+        {loading ? (
+          <span className="text-gray-500 animate-pulse">AI is refactoring...</span>
+        ) : output ? (
+          <div className="relative p-4 bg-slate-900 rounded-lg border border-slate-700 group">
+            <h3 className="text-xs uppercase text-slate-500 font-bold mb-2">Tailwind Classes</h3>
+            <div>
+              <code className="text-emerald-400 break-all block">
+                  {/* Instead of {output}, use the specific key: */}
+                {output?.tailwindClasses}
+              </code>
+
+              <button onClick={copyToClipboard} className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] px-2 py-1 rounded border border-slate-600 uppercase font-bold">Copy Classes</button>
             </div>
-          ) : (
-            <span className="text-gray-500">Result will appear here...</span>
-          )}
-        </div>
+          
+
+            
+            {output.explanation && (
+              <div className="mt-4 pt-4 border-t border-slate-800">
+                <h3 className="text-xs uppercase text-gray-500 font-bold mb-2">Explanation</h3>
+                <p className="text-gray-300 text-sm">{output.explanation}</p>
+              </div>
+            )}
+          </div>
+        ) : (
+          <span className="text-gray-500">Result will appear here...</span>
+        )}
       </div>
-      <div className="flex justify-center mt-6">
-        <button onClick={handleRefactor} className="bg-emerald-500 hover:bg-emerald-600 px-8 py-3 rounded-lg font-bold">
-          {loading ? "Converting..." : "Convert to Tailwind"}
-        </button>
-      </div>
+    </div>
+    {error && (
+      <p className="text-red-400 text-sm mt-2 flex items-center gap-1">
+        <span className="text-lg">⚠️</span> {error}
+      </p>
+    )}
+
+    {/* 5. The Button */}
+    <div className="flex justify-center mt-6">
+      <button 
+        onClick={handleRefactor}
+        disabled={!inputCss.trim()||loading}
+        className={`px-8 py-3 rounded-lg font-bold transition-all ${
+          !inputCss.trim()
+            ? 'bg-slate-800 text-slate-500 cursor-not-allowed'
+            : 'bg-emerald-500 text-white hover:bg-emerald-400 shadow-lg shadow-emerald-500/20 cursor-pointer'
+        }`}
+      >
+        {loading ? "Refactoring..." : "Convert to Tailwind"}
+      </button>
+    </div>
     
 
     </main>
