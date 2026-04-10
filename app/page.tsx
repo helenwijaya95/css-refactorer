@@ -31,8 +31,30 @@ export default function RefactorPage() {
   }
 
   return (
-    <main className="p-8 max-w-6xl mx-auto">
-      <h1 className="text-3xl font-bold mb-6">CSS → Tailwind Neural Refactorer</h1>
+    <main className="p-8 max-w-6xl mx-auto min-w-4xl selection:bg-emerald-500/30">
+
+    
+    {/* 1. The Tech Badge */}
+    <div className="flex justify-center mb-6">
+      <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-xs font-medium text-slate-400">
+        <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+        Next.js 15 + Gemini 1.5 Flash
+      </div>
+    </div>
+
+    {/* 2. The Main Title */}
+    <div className="text-center mb-12">
+      <h1 className="text-4xl md:text-6xl font-black tracking-tight mb-6">
+        CSS to <span className="text-emerald-400">Tailwind</span> Converter
+      </h1>
+      
+      {/* 3. The Subtitle */}
+      <p className="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto leading-relaxed">
+        An AI orchestration tool to refactor legacy styles into modern 
+        <span className="text-slate-200 font-semibold"> Tailwind v4</span> utility classes in seconds.
+      </p>
+    </div>
+      
       <div className="grid grid-cols-2 gap-6 h-[500px]">
         <textarea 
         className="p-4 border rounded-lg bg-gray-50 font-mono text-sm text-black"
@@ -71,9 +93,12 @@ export default function RefactorPage() {
           )}
         </div>
       </div>
-      <button onClick={handleRefactor} className="mt-6 px-8 py-3 bg-blue-600 text-white rounded-full font-bold hover:bg-blue-700 transition">
-        {loading ? "Refactoring..." : "Start Refactor"}
-      </button>
+      <div className="flex justify-center mt-6">
+        <button onClick={handleRefactor} className="bg-emerald-500 hover:bg-emerald-600 px-8 py-3 rounded-lg font-bold">
+          {loading ? "Converting..." : "Convert to Tailwind"}
+        </button>
+      </div>
+    
 
     </main>
   )
