@@ -1,18 +1,21 @@
 'use server'
 
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { ActionResponse, RefactorResult } from "@/src/types";
+import { GenerativeModel } from "@google/generative-ai";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
 const wait = (ms: number) => new Promise(res => setTimeout(res,ms));
 
 // exponential backoff
-async function callGeminiWithRetry(model: any, prompt: string, retries = 3){
+async function callGeminiWithRetry(model: GenerativeModel, prompt: string, retries = 3){
     for (let i = 0; i<retries; i++) {
         try {
             const result = await model.generateContent(prompt);
             return await result.response.text();
-        } catch (error: any) {
+        } catch (e) {
+            const error = e as Error;
             const delay = Math.pow(2,i)*1000;
             console.log(`Rate limited. Retrying in ${delay}ms...`);
             await wait(delay);
@@ -22,15 +25,9 @@ async function callGeminiWithRetry(model: any, prompt: string, retries = 3){
     }
 }
 
-function cleanJSON(text: string) {
-    const match = text.match(/```json?\n?([\s\S]*?)\n?```/);
-    const cleaned = match ? match[1]: text;
-    return cleaned.trim();
-}
 
-export async function refactorCSS(oldCss: string){
+export async function refactorCSS(oldCss: string): Promise<ActionResponse>{
     try {
-        console.log("DEBUG: Is API Key present?", !!process.env.GEMINI_API_KEY);
         const model = genAI.getGenerativeModel({
         model: "gemini-3.1-flash-lite-preview",
         generationConfig: { responseMimeType: "application/json",maxOutputTokens: 2000, // Give it plenty of room to finish the thought 
@@ -44,15 +41,27 @@ export async function refactorCSS(oldCss: string){
         });
         const prompt = `Convert this legacy CSS to Tailwind v4 utility classes: \n\n ${oldCss}`;
         const rawText = await callGeminiWithRetry(model, prompt);
-        const data = JSON.parse(rawText);
-        return {success: true, data};
-    } catch (error: any) {
-        console.error("FINAL_ERROR:", error.message);
-        return {
-            sucess: false,
-            error: error.status === 404
-            ? "Model name outdate. Try gemini-2.5-flash."
-            : error.message
+        if(!rawText) {
+            return {
+                success: false,
+                error: "The AI failed to return a response after multiple attempts."
+            }
         }
+        const data = JSON.parse(rawText) as RefactorResult;
+        return {success: true, data};
+    } catch (e) {
+        interface ApiError {
+            status?: number;
+            response?: { status?:number };
+        }
+
+        const apiError = e as ApiError;
+        const status = apiError.status || apiError.response?.status;
+
+        if(status === 404) {
+            return {success: false, error: "Model not found. Check your model string."}
+        }
+        const message = e instanceof Error ? e.message : "An unknown error occurred";
+        return { success: false, error: message };
     }
 }

@@ -1,17 +1,21 @@
 'use client'
 import { useState } from "react"
 import { refactorCSS } from "./actions"
+export const runtime = 'edge'; // Optional: Runs on global edge nodes
+export const preferredRegion = 'sin1'; // Forces the server to run in Singapore
+
+import { RefactorResult } from "@/src/types"; 
 
 export default function RefactorPage() {
   const [input, setInput] = useState('');
-  const [output, setOutput] = useState('');
+  const [output, setOutput] = useState<RefactorResult | null>(null);
   const [loading, setLoading] = useState(false)
   const [isCooldown, setIsCooldown] = useState(false)
   const handleRefactor = async () => {
     if(isCooldown) return;
     setLoading(true)
     const result = await refactorCSS(input)
-    if(result.success) setOutput(result.data || '')
+    if(result.success) setOutput(result.data || null)
       setLoading(false)
     setIsCooldown(true);
     setTimeout(() => {
