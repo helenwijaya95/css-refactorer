@@ -69,7 +69,7 @@ export default function RefactorPage() {
     <div className="flex-1 flex flex-col gap-4 px-6 pb-6 overflow-hidden max-w-6xl mx-auto w-full">
       
       {/* 4. The Textbox */}
-      <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4 min-h-0">
+      <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4 min-h-0 relative group">
         <textarea 
           className="p-4 border rounded-lg bg-gray-50 font-mono text-sm text-black resize-none"
           placeholder="Paste messy CSS here..."
@@ -77,24 +77,25 @@ export default function RefactorPage() {
           onChange={(e) => setInputCss(e.target.value)}
         />
 
-        <div className="p-4 bg-slate-900 rounded-md min-h-[100px]">
+    
+       
 
+        <div className="flex flex-col h-full bg-slate-900 border border-slate-800 rounded-xl resize-none outline-none p-4">
+        {output?.tailwindClasses && (
+            <button onClick={copyToClipboard} className="absolute -top-4 right-3 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] px-2 py-1 rounded border border-slate-600 uppercase font-bold z-10">Copy Classes</button>
+          )}
           {loading ? (
             <span className="text-gray-500 animate-pulse">AI is refactoring...</span>
           ) : output ? (
-            <div className="relative p-4 bg-slate-900 rounded-lg border border-slate-700 group">
+            <div className="flex-1 overflow-auto p-4 font-mono text-sm">
               <h3 className="text-xs uppercase text-slate-500 font-bold mb-2">Tailwind Classes</h3>
               <div>
                 <code className="text-emerald-400 break-all block">
                     {/* Instead of {output}, use the specific key: */}
                   {output?.tailwindClasses}
                 </code>
-
-                <button onClick={copyToClipboard} className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] px-2 py-1 rounded border border-slate-600 uppercase font-bold">Copy Classes</button>
+               
               </div>
-            
-
-              
               {output.explanation && (
                 <div className="mt-4 pt-4 border-t border-slate-800">
                   <h3 className="text-xs uppercase text-gray-500 font-bold mb-2">Explanation</h3>
@@ -113,20 +114,21 @@ export default function RefactorPage() {
         </p>
       )}
 
-      {/* 5. The Button */}
-      <div className="flex justify-center shrink-0 pt-2">
-        <button 
-          onClick={handleRefactor}
-          disabled={!inputCss.trim()||loading}
-          className={`px-8 py-3 rounded-lg font-bold transition-all ${
-            !inputCss.trim()
-              ? 'bg-slate-800 text-slate-500 cursor-not-allowed'
-              : 'bg-emerald-500 text-white hover:bg-emerald-400 shadow-lg shadow-emerald-500/20 cursor-pointer'
-          }`}
-        >
-          {loading ? "Refactoring..." : "Convert to Tailwind"}
-        </button>
-      </div>
+
+    </div>
+    {/* 5. The Button */}
+    <div className="flex justify-center shrink-0 pt-2">
+      <button 
+        onClick={handleRefactor}
+        disabled={!inputCss.trim()||loading}
+        className={`px-8 py-3 rounded-lg font-bold transition-all ${
+          !inputCss.trim()
+            ? 'bg-slate-800 text-slate-500 cursor-not-allowed'
+            : 'bg-emerald-500 text-white hover:bg-emerald-400 shadow-lg shadow-emerald-500/20 cursor-pointer'
+        }`}
+      >
+        {loading ? "Refactoring..." : "Convert to Tailwind"}
+      </button>
     </div>
 
 
