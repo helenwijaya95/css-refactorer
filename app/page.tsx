@@ -76,10 +76,7 @@ export default function RefactorPage() {
           value={inputCss}
           onChange={(e) => setInputCss(e.target.value)}
         />
-
-    
-       
-
+        
         <div className="flex flex-col h-full bg-slate-900 border border-slate-800 rounded-xl resize-none outline-none p-4">
         {output?.tailwindClasses && (
             <button onClick={copyToClipboard} className="absolute -top-4 right-3 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] px-2 py-1 rounded border border-slate-600 uppercase font-bold z-10">Copy Classes</button>
