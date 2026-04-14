@@ -25,7 +25,6 @@ export function ResultDisplay({ output, loading }: ResultDisplayProps) {
               <h3 className="text-xs uppercase text-slate-500 font-bold mb-2">Tailwind Classes</h3>
               <div>
                 <code className="text-emerald-400 break-all block">
-                    {/* Instead of {output}, use the specific key: */}
                   {output?.tailwindClasses}
                 </code>
                
