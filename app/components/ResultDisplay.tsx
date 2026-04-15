@@ -9,7 +9,6 @@ interface ResultDisplayProps {
 }
 
 export function ResultDisplay({ output, loading }: ResultDisplayProps) {
-  // Normalize results
   const results = Array.isArray(output) ? output : output ? [output] : [];
 
   return (
@@ -26,13 +25,10 @@ export function ResultDisplay({ output, loading }: ResultDisplayProps) {
               className={index !== 0 ? 'pt-6 border-t border-slate-800' : ''}
             >
               <div className="flex items-center justify-between mb-2">
-                <h3 className="text-xs uppercase text-slate-500 font-bold">
-                  {results.length > 1
-                    ? `Result ${index + 1}`
-                    : 'Tailwind Classes'}
+                <h3 className="text-xs text-emerald-500 font-bold font-mono">
+                  {item.originalClassName || `Result ${index + 1}`}
                 </h3>
 
-                {/* Use the new component here */}
                 <CopyButton text={item.tailwindClasses} />
               </div>
 

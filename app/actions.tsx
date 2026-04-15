@@ -50,11 +50,12 @@ export async function refactorCSS(oldCss: string): Promise<ActionResponse> {
         maxOutputTokens: 2000,
       },
       systemInstruction: `You are a CSS refactoring engine. Transform legacy CSS into Tailwind v4 utility classes. 
-            Return the result as a JSON array of objects: 
-            [{ 
-              "tailwindClasses": "string of classes", 
-              "explanation": "why you chose these" 
-            }]`,
+        Return the result as a JSON array of objects: 
+        [{ 
+          "originalClassName": ".selector-name",
+          "tailwindClasses": "string of classes", 
+          "explanation": "why you chose these" 
+        }]`,
     });
 
     const prompt = `Convert this legacy CSS to Tailwind v4 utility classes: \n\n ${oldCss}`;

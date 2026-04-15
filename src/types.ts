@@ -1,6 +1,7 @@
 export interface RefactorResult {
-    tailwindClasses: string;
-    explanation: string;
+  originalClassName: string; // The selector (e.g., .card)
+  tailwindClasses: string;
+  explanation: string;
 }
 
 export interface GeminiError extends Error {
