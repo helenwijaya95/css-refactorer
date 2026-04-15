@@ -1,42 +1,44 @@
-'use client'
-import { useEffect, useRef } from 'react'
-import Prism from 'prismjs'
-import 'prismjs/components/prism-css'
-import styles from './CodeEditor.module.css'
+'use client';
+import { useEffect, useRef } from 'react';
+import Prism from 'prismjs';
+import 'prismjs/components/prism-css';
+import styles from './CodeEditor.module.css';
 
 interface CodeEditorProps {
-  value: string
-  onChange: (value: string) => void
-  placeholder?: string
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
 }
 
 export function CodeEditor({ value, onChange, placeholder }: CodeEditorProps) {
-  const preRef = useRef<HTMLPreElement>(null)
-  const codeRef = useRef<HTMLElement>(null)   // ref on code, not pre
-  const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const preRef = useRef<HTMLPreElement>(null);
+  const codeRef = useRef<HTMLElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
-    if (codeRef.current) {
-      Prism.highlightElement(codeRef.current)  // highlight code, not pre
-    }
-  }, [value])
+    if (!codeRef.current || !value || !Prism.languages.css) return;
+
+    const highlighted = Prism.highlight(value, Prism.languages.css, 'css');
+    codeRef.current.innerHTML = highlighted;
+  }, [value]);
 
   const syncScroll = () => {
     if (textareaRef.current && preRef.current) {
-      preRef.current.scrollTop = textareaRef.current.scrollTop
-      preRef.current.scrollLeft = textareaRef.current.scrollLeft
+      preRef.current.scrollTop = textareaRef.current.scrollTop;
+      preRef.current.scrollLeft = textareaRef.current.scrollLeft;
     }
-  }
+  };
 
   return (
     <div className={styles.wrapper}>
-      <pre ref={preRef} aria-hidden="true" className={styles.pre}>
-        <code
-          ref={codeRef}
-          className="language-css"  // class stays on code only
-        >
-          {value || ' '}
-        </code>
+      <pre
+        ref={preRef}
+        aria-hidden="true"
+        className={styles.pre}
+        suppressHydrationWarning
+      >
+        <code ref={codeRef} className="language-css" suppressHydrationWarning />{' '}
+        {/* no children — Prism writes innerHTML directly */}
       </pre>
       <textarea
         ref={textareaRef}
@@ -48,5 +50,5 @@ export function CodeEditor({ value, onChange, placeholder }: CodeEditorProps) {
         className={styles.textarea}
       />
     </div>
-  )
+  );
 }
