@@ -1,45 +1,61 @@
 import { RefactorResult } from "@/src/types";
+import { CodeOutput } from "./CodeOutput";
+import { useState } from "react";
 
 interface ResultDisplayProps {
-  output: RefactorResult | null;
+  output: RefactorResult | RefactorResult[] | null;
   loading: boolean
 }
 
 export function ResultDisplay({ output, loading }: ResultDisplayProps) {
-  const copyToClipboard = () => {
-    if(output?.tailwindClasses) {
-      navigator.clipboard.writeText(output.tailwindClasses);
-      alert("Copied to clipboard!");
+  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+
+  // Normalize to handle both single objects and arrays
+  const results = Array.isArray(output) 
+    ? output 
+    : output 
+      ? [output] 
+      : [];
+
+  const copyToClipboard = (text: string, index: number) => {
+    if (text) {
+      navigator.clipboard.writeText(text);
+      setCopiedIndex(index);
+      setTimeout(() => setCopiedIndex(null), 2000);
     }
   }
-  
+
   return (
     <>
-        {output?.tailwindClasses && (
-            <button onClick={copyToClipboard} role="button" className="absolute -top-1 right-3 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] px-2 py-1 rounded border border-slate-600 uppercase font-bold z-10">Copy Classes</button>
-          )}
-          {loading ? (
-            <span className="text-gray-500 animate-pulse">AI is refactoring...</span>
-          ) : output ? (
-            <div className="flex-1 overflow-auto p-4 font-mono text-sm">
-              <h3 className="text-xs uppercase text-slate-500 font-bold mb-2">Tailwind Classes</h3>
-              <div>
-                <code className="text-emerald-400 break-all block">
-                  {output?.tailwindClasses}
-                </code>
-               
+      {loading ? (
+        <span className="text-gray-500 animate-pulse">AI is refactoring...</span>
+      ) : results.length > 0 ? (
+        <div className="flex-1 overflow-auto p-4 font-mono text-sm relative space-y-8">
+          {results.map((item, index) => (
+            <div key={index} className={index !== 0 ? "pt-6 border-t border-slate-800" : ""}>
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-xs uppercase text-slate-500 font-bold">
+                  {results.length > 1 ? `Result ${index + 1}` : 'Tailwind Classes'}
+                </h3>
+                <button
+                  onClick={() => copyToClipboard(item.tailwindClasses, index)}
+                  className={`text-xs px-3 py-1 rounded border transition-all ${
+                    copiedIndex === index
+                      ? 'border-emerald-500 text-emerald-400 bg-emerald-500/10'
+                      : 'border-slate-700 text-slate-400 hover:border-slate-500 hover:text-slate-200'
+                  }`}
+                >
+                  {copiedIndex === index ? 'Copied!' : 'Copy'}
+                </button>
               </div>
-              {output.explanation && (
-                <div className="mt-4 pt-4 border-t border-slate-800">
-                  <h3 className="text-xs uppercase text-gray-500 font-bold mb-2">Explanation</h3>
-                  <p className="text-gray-300 text-sm">{output.explanation}</p>
-                </div>
-              )}
+
+              <CodeOutput code={item.tailwindClasses} />
             </div>
-          ) : (
-            <span className="text-gray-500">Result will appear here...</span>
-          )}
+          ))}
+        </div>
+      ) : (
+        <span className="text-gray-500">Result will appear here...</span>
+      )}
     </>
   )
-         
 }

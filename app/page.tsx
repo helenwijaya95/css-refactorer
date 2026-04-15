@@ -6,10 +6,36 @@ export const preferredRegion = 'sin1';
 
 import { RefactorResult } from "@/src/types";
 import { ResultDisplay } from "./components/ResultDisplay";
+import { CodeEditor } from "./components/CodeEditor";
+import { MOCK_REFACTOR_RESULT } from "@/src/mockData";
 
 export default function RefactorPage() {
-  const [inputCss, setInputCss] = useState("");
-  const [output, setOutput] = useState<RefactorResult | null>(null);
+  const [inputCss, setInputCss] = useState(`
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px;
+  margin: 8px auto;
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  max-width: 400px;
+}
+
+.card:hover {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.card-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 8px;
+}`);
+  const [output, setOutput] = useState<RefactorResult[] | null>(
+    process.env.NODE_ENV === 'development' ? MOCK_REFACTOR_RESULT : null
+  );
   const [loading, setLoading] = useState(false);
   const [isCooldown, setIsCooldown] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -20,6 +46,7 @@ export default function RefactorPage() {
       return;
     }
     if (isCooldown) return;
+    if(loading) return;
     setLoading(true);
     setError(null);
 
@@ -72,18 +99,17 @@ export default function RefactorPage() {
       <div className="grid grid-cols-2 gap-0 flex-1 min-h-0 border border-slate-800 rounded-xl overflow-hidden">
 
         {/* LEFT — input */}
-        <div className="flex flex-col border-r border-slate-800">
-          <div className="flex items-center justify-between px-4 py-2 border-b border-slate-800 bg-slate-900">
+       <div className="flex flex-col min-h-0 border-r border-slate-800">
+          <div className="flex items-center justify-between px-4 py-2 border-b border-slate-800 bg-slate-900 shrink-0">
             <span className="text-xs font-medium uppercase tracking-widest text-slate-500">
               CSS input
             </span>
             <span className="text-xs text-slate-600">Paste your legacy CSS here</span>
           </div>
-          <textarea
-            className="flex-1 p-4 bg-slate-900 font-mono text-sm text-slate-200 resize-none outline-none placeholder:text-slate-600"
-            placeholder={`.card {\n  display: flex;\n  padding: 16px;\n  background: #fff;\n}`}
+          <CodeEditor
+            placeholder="Paste your legacy CSS here..."
             value={inputCss}
-            onChange={(e) => setInputCss(e.target.value)}
+            onChange={setInputCss}
           />
         </div>
 
@@ -97,7 +123,7 @@ export default function RefactorPage() {
               </span>
             </div>
             {output && (
-              <CopyButton output={output} />
+              <CopyButton output={output.tailwindClasses} />
             )}
           </div>
           <div className="flex-1 bg-slate-900 p-4 overflow-auto">
@@ -137,11 +163,11 @@ export default function RefactorPage() {
 }
 
 // Copy button as a small self-contained component
-function CopyButton({ output }: { output: RefactorResult }) {
+function CopyButton({ output }: { output: string }) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
-    const text = typeof output === 'string' ? output : JSON.stringify(output, null, 2);
+    const text = output || '';
     navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
