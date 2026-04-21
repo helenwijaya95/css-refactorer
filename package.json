@@ -1,7 +1,9 @@
 {
-  "name": "css-refactorer",
-  "version": "0.1.0",
-  "private": true,
+ "name": "css-tailwind-refactorer",
+  "version": "1.0.0",
+  "description": "AI-powered tool to convert legacy CSS to Tailwind v4 utility classes",
+  "author": "Helen Wijaya",
+  "license": "MIT",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
